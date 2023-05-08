@@ -6,6 +6,7 @@ export class Server {
     private readonly wsServer;
 
     constructor() {
+
         this.server = http.createServer();
         this.wsServer = new WebSocketServer({ server: this.server })
     }

@@ -1,7 +1,7 @@
 import { ClientModel, Clients } from "./models/client.model";
 import { Server } from "./server/server";
 import crypto from "crypto";
-import {indexMiddleware} from "./middlewares/index.middleware";
+import { indexMiddleware } from "./middlewares/index.middleware";
 
 const server = new Server(); // initial server
 const port = 8000; // port

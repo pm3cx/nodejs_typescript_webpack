@@ -3,6 +3,7 @@ const nodeExternals = require('webpack-node-externals');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 import { Configuration } from "webpack";
 import WebpackShellPluginNext from "webpack-shell-plugin-next";
+import * as autoprefixer from "autoprefixer";
 
 
 const getClientConfig = (
@@ -13,7 +14,7 @@ const getClientConfig = (
         path: resolve(__dirname, `.env.${env.mode}`),
     });
     return  {
-        entry: "./public/js/script.js",
+        entry: "./public/js/main.js",
         target: 'web',
         mode: argv.mode === "production" ? "production" : "development",
         plugins: [
@@ -26,26 +27,45 @@ const getClientConfig = (
         module: {
             rules: [
                 {
-                    test: /\.js$/,
+                    test: /\.(scss)$/,
                     exclude: /(node_modules)/,
-                    use: {
-                        loader: 'babel-loader',
-                        options: {
-                            presets: ['@babel/preset-env']
+                    use: [
+                        // Adds CSS to the DOM by injecting a `<style>` tag
+                        {
+                            loader: 'style-loader',
+                        },
+                        {
+                            // Interprets `@import` and `url()` like `import/require()` and will resolve them
+                            loader: 'css-loader'
+                        },
+                        {
+                            // Loader for webpack to process CSS with PostCSS
+                            loader: 'postcss-loader',
+                            options: {
+                                postcssOptions: {
+                                    plugins: () => [
+                                        autoprefixer
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            // Loads a SASS/SCSS file and compiles it to CSS
+                            loader: 'sass-loader'
                         }
-                    }
+                    ]
                 }
             ]
         },
         resolve: {
-            extensions: [".html", ".js"],
+            extensions: [".html", ".js", ".scss"],
             alias: {
                 src: resolve(__dirname, "public"),
             }
         },
         output: {
             path: join(__dirname, "build", "public"),
-            filename: "index.js",
+            filename: "main.js",
         },
         optimization: {
             moduleIds: "deterministic",
