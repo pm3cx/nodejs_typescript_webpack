@@ -1,9 +1,11 @@
 import { ClientModel, Clients } from "./models/client.model";
 import { Server } from "./server/server";
 import crypto from "crypto";
+import {indexMiddleware} from "./middlewares/index.middleware";
 
 const server = new Server(); // initial server
 const port = 8000; // port
+
 const handleDisconnect = (userId: string) => {
     if (Clients[userId]) {
         delete Clients[userId];
@@ -11,19 +13,25 @@ const handleDisconnect = (userId: string) => {
     }
 }
 
+// WebSocket Connection
 server.ws.on('connection', (connection, r) => {
     const uuid = crypto.randomUUID();
     const client = new ClientModel(uuid, r.socket.remoteAddress);
     Clients[client.id] = connection;
     console.log(`${uuid} connected.`);
-    connection.on('close', () => handleDisconnect(uuid))
+    connection.on('close', () => handleDisconnect(uuid));
 });
 
+// Routes
+server.http.addListener('request', indexMiddleware);
 
-
+// Server
 server.http.listen(port, () => {
     console.log(`WebSocket server listening on port ${port}`);
 });
+
+
+
 
 
 

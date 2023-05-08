@@ -1,8 +1,61 @@
 import { resolve, join } from 'path';
 const nodeExternals = require('webpack-node-externals');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 import { Configuration } from "webpack";
 import WebpackShellPluginNext from "webpack-shell-plugin-next";
-const getConfig = (
+
+
+const getClientConfig = (
+    env: { [key: string]: string },
+    argv: { [key: string]: string }
+): Configuration => {
+    require("dotenv").config({
+        path: resolve(__dirname, `.env.${env.mode}`),
+    });
+    return  {
+        entry: "./public/js/script.js",
+        target: 'web',
+        mode: argv.mode === "production" ? "production" : "development",
+        plugins: [
+            new HtmlWebpackPlugin(
+                {
+                    template: resolve(__dirname, "./public/index.html")
+                }
+            ),
+        ],
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    exclude: /(node_modules)/,
+                    use: {
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env']
+                        }
+                    }
+                }
+            ]
+        },
+        resolve: {
+            extensions: [".html", ".js"],
+            alias: {
+                src: resolve(__dirname, "public"),
+            }
+        },
+        output: {
+            path: join(__dirname, "build", "public"),
+            filename: "index.js",
+        },
+        optimization: {
+            moduleIds: "deterministic",
+            splitChunks: {
+                chunks: "all",
+            }
+        }
+    }
+}
+const getServerConfig = (
     env: { [key: string]: string },
     argv: { [key: string]: string }
 ): Configuration => {
@@ -55,4 +108,4 @@ const getConfig = (
     }
 }
 
-export default getConfig;
+export default [getServerConfig,getClientConfig];
