@@ -1,7 +1,7 @@
 import { ClientModel, Clients } from "./models/client.model";
 import { Server } from "./server/server";
 import crypto from "crypto";
-import { indexMiddleware } from "./middlewares/index.middleware";
+import {routes} from "./routes/routes";
 
 const server = new Server(); // initial server
 const port = 8000; // port
@@ -23,7 +23,7 @@ server.ws.on('connection', (connection, r) => {
 });
 
 // Routes
-server.http.addListener('request', indexMiddleware);
+server.http.addListener('request', routes);
 
 // Server
 server.http.listen(port, () => {

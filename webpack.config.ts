@@ -3,8 +3,10 @@ const nodeExternals = require('webpack-node-externals');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 import { Configuration } from "webpack";
 import WebpackShellPluginNext from "webpack-shell-plugin-next";
+
 import * as autoprefixer from "autoprefixer";
 
+const miniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const getClientConfig = (
     env: { [key: string]: string },
@@ -14,64 +16,49 @@ const getClientConfig = (
         path: resolve(__dirname, `.env.${env.mode}`),
     });
     return  {
-        entry: "./public/js/main.js",
-        target: 'web',
         mode: argv.mode === "production" ? "production" : "development",
+        entry: './public/src/assets/js/main.js',
+        output: {
+            path: resolve(__dirname, "build", "public"),
+            filename: "assets/js/[name].js"
+        },
         plugins: [
-            new HtmlWebpackPlugin(
-                {
-                    template: resolve(__dirname, "./public/index.html")
-                }
-            ),
+            new HtmlWebpackPlugin({ template: './public/src/index.html' }),
+            new miniCssExtractPlugin()
         ],
         module: {
             rules: [
                 {
-                    test: /\.(scss)$/,
+                    test: /\.js$/,
                     exclude: /(node_modules)/,
+                    use: {
+                        loader: "babel-loader",
+                        options: {
+                            presets: [
+                                "@babel/preset-env"
+                            ]
+                        }
+                    }
+                },
+                {
+                    test: /\.(scss)$/,
                     use: [
-                        // Adds CSS to the DOM by injecting a `<style>` tag
+                        { loader: miniCssExtractPlugin.loader },
+                        { loader: "css-loader" },
                         {
-                            loader: 'style-loader',
-                        },
-                        {
-                            // Interprets `@import` and `url()` like `import/require()` and will resolve them
-                            loader: 'css-loader'
-                        },
-                        {
-                            // Loader for webpack to process CSS with PostCSS
-                            loader: 'postcss-loader',
+                            loader: "postcss-loader",
                             options: {
                                 postcssOptions: {
-                                    plugins: () => [
-                                        autoprefixer
-                                    ]
+                                    plugins: () => [autoprefixer]
                                 }
                             }
                         },
                         {
-                            // Loads a SASS/SCSS file and compiles it to CSS
                             loader: 'sass-loader'
                         }
                     ]
                 }
-            ]
-        },
-        resolve: {
-            extensions: [".html", ".js", ".scss"],
-            alias: {
-                src: resolve(__dirname, "public"),
-            }
-        },
-        output: {
-            path: join(__dirname, "build", "public"),
-            filename: "main.js",
-        },
-        optimization: {
-            moduleIds: "deterministic",
-            splitChunks: {
-                chunks: "all",
-            }
+            ],
         }
     }
 }

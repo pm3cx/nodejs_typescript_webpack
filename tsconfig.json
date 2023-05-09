@@ -14,7 +14,9 @@
     "isolatedModules": true,
     "baseUrl": "."
   },
-  "include": ["src/**/*.ts", "src/index.ts", "public/**/*.js", "public/index.html"],
+  "include": ["src/**/*.ts", "src/index.ts", "public/**/*.js",
+    "public/src/index.html"
+  ],
   "exclude": [
     "node_modules", "src/**/*.spec.ts",
     "src/**/__tests__/*.ts"
