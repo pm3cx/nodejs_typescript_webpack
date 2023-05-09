@@ -1,18 +1,22 @@
-export const Clients: { [key: string] : {} } = {};
+import WebSocket from 'ws';
+
 export class ClientModel {
-    private readonly _id: string;
-    private readonly _ip: string|undefined;
+    private readonly Clients: { [key: string] : {} };
 
-    constructor(id: string, ip: string|undefined) {
-        this._id = id;
-        this._ip = ip;
+    constructor() {
+        this.Clients = {};
+        this.saveClient = this.saveClient.bind(this)
     }
 
-    get id() {
-        return this._id;
+    saveClient(id: string, connection: WebSocket.WebSocket) {
+        this.Clients[id] = connection;
+        console.log(`${id} connected.`);
     }
 
-    get ip() {
-        return this._ip;
+    removeClient(id: string) {
+        if (this.Clients[id]) {
+            delete this.Clients[id];
+            console.log(`${id} disconnected.`);
+        }
     }
 }
